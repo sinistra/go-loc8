@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -23,7 +24,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	r := csv.NewReader(io.Reader(f))
+	r := csv.NewReader(bufio.NewReader(f))
 	r.Comma = ','
 	r.Comment = '#'
 
