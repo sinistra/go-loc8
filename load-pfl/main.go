@@ -12,56 +12,56 @@ import (
 )
 
 type footprint struct {
-	nbnLocationIdentifier 		string
-	gnafPersistentIdentifier 	string
-	rolloutRegionIdentifier 	string
-	distributionAreaIdentifier 	string
-	formattedAddressString 		string
-	serviceClass 				int
-	serviceClassDescription 	string
-	serviceClassReason 			string
-	readyForServiceDate			string
-	disconnectionDate 			string
-	unitNumber 					string
-	unitTypeCode 				string
-	levelNumber 				string
-	levelTypeCode 				string
-	addressSiteName 			string
-	roadNumber1 				string
-	roadNumber2 				string
-	lotNumber 					string
-	roadName 					string
-	roadSuffixCode 				string
-	roadTypeCode				string
-	localityName				string
-	secondaryComplexName		string
-	complexRoadNumber1			string
-	complexRoadNumber2			string
-	complexRoadName				string
-	complexRoadTypeCode			string
-	complexRoadSuffixCode		string
-	postcode					string
-	stateTerritoryCode			string
-	latitude					float64
-	longitude					float64
-	isComplexPremiseYn			bool
-	serviceLevelRegion			string
-	serviceType					string
-	listingType					string
-	technologyType				string
-	isEarlyAccessAvailable		bool
-	poiIdentifier				string
-	poiName						string
-	transitionalPoiIdentifier	string
-	transitionalPoiName			string
-	connectivityServicingAreaIdentifier	string
-	connectivityServicingAreaName	string
-	transitionalConnectivityServicingAreaIdentifier	string
-	transitionalConnectivityServicingAreaName	string
-	newDevelopmentsChargeApplies	bool
-	deltaType					string
-	lastUpdatedTimestamp		string
-	isCriticalServiceFlagYn		bool
+	nbnLocationIdentifier                           string
+	gnafPersistentIdentifier                        string
+	rolloutRegionIdentifier                         string
+	distributionAreaIdentifier                      string
+	formattedAddressString                          string
+	serviceClass                                    int
+	serviceClassDescription                         string
+	serviceClassReason                              string
+	readyForServiceDate                             string
+	disconnectionDate                               string
+	unitNumber                                      string
+	unitTypeCode                                    string
+	levelNumber                                     string
+	levelTypeCode                                   string
+	addressSiteName                                 string
+	roadNumber1                                     string
+	roadNumber2                                     string
+	lotNumber                                       string
+	roadName                                        string
+	roadSuffixCode                                  string
+	roadTypeCode                                    string
+	localityName                                    string
+	secondaryComplexName                            string
+	complexRoadNumber1                              string
+	complexRoadNumber2                              string
+	complexRoadName                                 string
+	complexRoadTypeCode                             string
+	complexRoadSuffixCode                           string
+	postcode                                        string
+	stateTerritoryCode                              string
+	latitude                                        float64
+	longitude                                       float64
+	isComplexPremiseYn                              bool
+	serviceLevelRegion                              string
+	serviceType                                     string
+	listingType                                     string
+	technologyType                                  string
+	isEarlyAccessAvailable                          bool
+	poiIdentifier                                   string
+	poiName                                         string
+	transitionalPoiIdentifier                       string
+	transitionalPoiName                             string
+	connectivityServicingAreaIdentifier             string
+	connectivityServicingAreaName                   string
+	transitionalConnectivityServicingAreaIdentifier string
+	transitionalConnectivityServicingAreaName       string
+	newDevelopmentsChargeApplies                    bool
+	deltaType                                       string
+	lastUpdatedTimestamp                            string
+	isCriticalServiceFlagYn                         bool
 }
 
 var m map[int]string
@@ -97,15 +97,16 @@ func main() {
 		fmt.Println(record)
 
 		pfl := ConvertRecordToFootprint(record)
+		fmt.Println(pfl)
 	}
 }
 
 func ConvertRecordToFootprint(record []string) footprint {
 
 	var f footprint
-	for i, field := range record {
-		f.(m[i]) = field
-	}
+	//for i, field := range record {
+	//	f.(m[i]) = field
+	//}
 
 	return f
 }
@@ -129,9 +130,9 @@ func SnakeCaseToCamelCase(inputUnderScoreStr string) (camelCase string) {
 	return
 }
 
-func ConvertHeadersToMap (fields []string) map[int]string {
+func ConvertHeadersToMap(fields []string) map[int]string {
 
-	m:= make(map[int]string)
+	m := make(map[int]string)
 
 	for i, field := range fields {
 		m[i] = SnakeCaseToCamelCase(field)
