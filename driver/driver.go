@@ -1,18 +1,18 @@
 package driver
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/kelseyhightower/envconfig"
-	_ "github.com/lib/pq"
 	"log"
-)
 
-var db *sqlx.DB
+	_ "github.com/lib/pq"
+)
 
 const driver = "postgres"
 
-type config struct {
+type dbConfig struct {
 	Db            string
 	Host          string
 	Port          int
@@ -27,23 +27,32 @@ type config struct {
 	SlackToken    string
 }
 
-var c config
+var dbc dbConfig
 
-func ConnectDB() {
-	err := envconfig.Process("PG", &c)
+func ConnectDB() *sql.DB {
+	err := envconfig.Process("PG", &dbc)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	dsn := fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable", c.User, c.Password, c.Host, c.Port, c.Db)
+	dsn := fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable", dbc.User, dbc.Password, dbc.Host, dbc.Port, dbc.Db)
 	db, err := sqlx.Connect(driver, dsn)
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err.Error())
 	}
+
+	//db, err := sql.Open(driver, dsn)
+	//if err != nil {
+	//	log.Fatal(err.Error())
+	//}
+
+	// calling db.Close will close immediately this function returns, even though db is in the return.
+	//defer db.Close()
 
 	err = db.Ping()
 	if err != nil {
-		log.Fatalln(err)
+		log.Fatal(err.Error())
 	}
 
+	return db
 }

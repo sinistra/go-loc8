@@ -1,57 +1,42 @@
 package main
 
 import (
-	"books-list/controllers"
-	"books-list/driver"
-	"books-list/models"
 	"database/sql"
+	"fmt"
+	"github.com/joho/godotenv"
+	"github.com/urfave/negroni"
+	"gopkg.in/tylerb/graceful.v1"
 	"log"
 	"net/http"
+	"os"
+	"sinistra/go-loc8/controllers"
+	"sinistra/go-loc8/driver"
+	"sinistra/go-loc8/models"
+	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/subosito/gotenv"
 )
 
 var books []models.Book
 var db *sql.DB
+var port string
 
 func init() {
-	gotenv.Load()
-}
-
-func logFatal(err error) {
-	if err != nil {
-		log.Fatal(err)
+	godotenv.Load()
+	var ok bool
+	port, ok = os.LookupEnv("HOST_PORT")
+	if !ok {
+		port = "8000"
 	}
-}
-
-type WithCORS struct {
-	r *mux.Router
-}
-
-// Simple wrapper to Allow CORS.
-// See: http://stackoverflow.com/a/24818638/1058612.
-func (s *WithCORS) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	if origin := req.Header.Get("Origin"); origin != "" {
-		res.Header().Set("Access-Control-Allow-Origin", origin)
-		res.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		res.Header().Set("Access-Control-Allow-Headers",
-			"Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-	}
-
-	// Stop here for a Preflighted OPTIONS request.
-	if req.Method == "OPTIONS" {
-		return
-	}
-	// Lets Gorilla work
-	s.r.ServeHTTP(res, req)
 }
 
 func main() {
+	//log.Println("Port="+port)
 	db = driver.ConnectDB()
-	router := mux.NewRouter()
-
+	defer db.Close()
 	controller := controllers.Controller{}
+
+	router := mux.NewRouter()
 
 	router.HandleFunc("/books", controller.GetBooks(db)).Methods("GET")
 	router.HandleFunc("/books/{id}", controller.GetBook(db)).Methods("GET")
@@ -59,5 +44,30 @@ func main() {
 	router.HandleFunc("/books", controller.UpdateBook(db)).Methods("PUT")
 	router.HandleFunc("/books/{id}", controller.RemoveBook(db)).Methods("DELETE")
 
-	log.Fatal(http.ListenAndServe(":8000", &WithCORS{router}))
+	router.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+		panic("oh no")
+	})
+
+	n := negroni.New()
+
+	recovery := negroni.NewRecovery()
+	recovery.Formatter = &negroni.HTMLPanicFormatter{}
+
+	n.Use(recovery)
+	n.Use(negroni.NewLogger())
+	n.UseHandler(router)
+
+	fmt.Println("Server is running at port " + port)
+	address := ":" + port
+
+	srv := &graceful.Server{
+		Timeout: 10 * time.Second,
+
+		Server: &http.Server{
+			Addr:    address,
+			Handler: n,
+		},
+	}
+
+	log.Fatal(srv.ListenAndServe())
 }
