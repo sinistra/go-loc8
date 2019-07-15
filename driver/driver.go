@@ -1,7 +1,6 @@
 package driver
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	"github.com/kelseyhightower/envconfig"
@@ -29,7 +28,7 @@ type dbConfig struct {
 
 var dbc dbConfig
 
-func ConnectDB() *sql.DB {
+func ConnectDB() *sqlx.DB {
 	err := envconfig.Process("PG", &dbc)
 	if err != nil {
 		log.Fatal(err.Error())
